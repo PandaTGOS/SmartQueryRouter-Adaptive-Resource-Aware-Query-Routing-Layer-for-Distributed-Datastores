@@ -1,0 +1,1 @@
+# SmartQueryRouter-Adaptive-Resource-Aware-Query-Routing-Layer-for-Distributed-Datastores
