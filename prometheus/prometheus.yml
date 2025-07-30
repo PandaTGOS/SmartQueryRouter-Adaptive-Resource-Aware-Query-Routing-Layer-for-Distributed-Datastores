@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 1s
+
+scrape_configs:
+  - job_name: 'query-router'
+    static_configs:
+      - targets: ['router:8080']

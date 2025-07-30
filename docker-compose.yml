@@ -1,0 +1,82 @@
+version: "3.8"
+services:
+  mongo1:
+    image: mongo
+    ports:
+      - "37017:27017"
+    volumes:
+    - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js
+
+  mongo2:
+    image: mongo
+    ports:
+      - "37018:27017"
+    volumes:
+    - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js
+
+  mongo3:
+    image: mongo
+    ports:
+      - "37019:27017"
+    volumes:
+    - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js
+
+  mongo-proxy1:
+    build: ./mongo-node
+    ports:
+      - "9001:9001"
+    environment:
+      - MONGO_URI=mongodb://mongo1:27017
+
+  mongo-proxy2:
+    build: ./mongo-node
+    ports:
+      - "9002:9001"
+    environment:
+      - MONGO_URI=mongodb://mongo2:27017
+
+  mongo-proxy3:
+    build: ./mongo-node
+    ports:
+      - "9003:9001"
+    environment:
+      - MONGO_URI=mongodb://mongo3:27017
+
+  router:
+    build: ./router
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo-proxy1
+      - mongo-proxy2
+      - mongo-proxy3
+    
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+  
+  querygen:
+    build:
+      context: ./querygen
+    depends_on:
+      - router
+    environment:
+      - QUERY_INTERVAL=0.3
+
+volumes:
+  grafana-data:

@@ -1,0 +1,117 @@
+{
+  "title": "Smart Query Router",
+  "uid": "router-observability",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 2,
+  "refresh": "1s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Healthy Nodes",
+      "targets": [
+        {
+          "expr": "sum(smartrouter_node_healthy)",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 }
+    },
+    {
+      "type": "bargauge",
+      "title": "Queries per Node (1m Rate)",
+      "targets": [
+        {
+          "expr": "rate(smartrouter_requests_total[1m])",
+          "legendFormat": "{{node}}",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "x": 4, "y": 0, "w": 8, "h": 4 },
+      "orientation": "horizontal"
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency p90 (per Node)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.9, sum(rate(smartrouter_query_latency_seconds_bucket[1m])) by (le, node))",
+          "legendFormat": "{{node}} (p90)",
+          "refId": "C"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 }
+    },
+    {
+      "type": "stat",
+      "title": "Total Requests",
+      "targets": [
+        {
+          "expr": "sum(smartrouter_requests_total)",
+          "refId": "D"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 }
+    },
+    {
+      "type": "table",
+      "title": "Node Status Table",
+      "targets": [
+        {
+          "expr": "smartrouter_node_healthy",
+          "legendFormat": "{{node}}",
+          "refId": "E"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency p95 (per Node)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(smartrouter_query_latency_seconds_bucket[1m])) by (le, node))",
+          "legendFormat": "{{node}} (p95)",
+          "refId": "F"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 }
+    },
+    {
+      "type": "bargauge",
+      "title": "Total Queries per Node",
+      "targets": [
+        {
+          "expr": "smartrouter_requests_total",
+          "legendFormat": "{{node}}",
+          "refId": "H"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 6 }
+    },
+    {
+      "type": "bargauge",
+      "title": "Query Distribution (%)",
+      "targets": [
+        {
+          "expr": "100 * smartrouter_requests_total / sum(smartrouter_requests_total)",
+          "legendFormat": "{{node}}",
+          "refId": "G"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Avg Latency (Moving)",
+      "targets": [
+        {
+          "expr": "rate(smartrouter_query_latency_seconds_sum[1m]) / rate(smartrouter_query_latency_seconds_count[1m])",
+          "legendFormat": "{{node}}",
+          "refId": "I"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 6 }
+    }
+  ]
+}
